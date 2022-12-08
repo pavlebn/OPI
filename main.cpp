@@ -34,7 +34,8 @@ int main() {
 	dataSet izdelkiRFID;
 	dataMap evidenca;
 	dataMap seznam;
-
+	
+	inputData("izdelki.csv", izdelkiRFID);
 	storeData(izdelkiRFID, evidenca);
 	inputData("nakupovalniseznam.csv", izdelkiRFID);
 	storeData(izdelkiRFID, seznam);
