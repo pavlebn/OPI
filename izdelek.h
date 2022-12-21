@@ -5,7 +5,8 @@
 struct Izdelek {
 	std::string ime_proizvajalca;
 	std::string ime_izdelka;
-	int kolicina = 0;
+	mutable int kolicina = 0;
+	int rfid = 0;
 
 	bool operator==(const Izdelek& other) const;
 	

@@ -1,0 +1,7 @@
+produkt, ime,1000
+produkt, ime,1000
+produkt, ime,1000
+produkt, ime,1000
+ad,ad,1
+as,as,2
+af,af,3

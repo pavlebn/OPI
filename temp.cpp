@@ -57,8 +57,8 @@ void Temp::setTemp(int predal, int temp) {
 	if (predal == 2) temp2 = temp;
 	if (predal == 3) temp3 = temp;
 	if (predal == 4) tempGlava = temp;
-	remove("temp.csv");
-	std::ofstream outfile ("temp.csv");
+	remove("temp.txt");
+	std::ofstream outfile ("temp.txt");
 	outfile << temp1 << ","
 			<< temp2 << ","
 			<< temp3 << ","
