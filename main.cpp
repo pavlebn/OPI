@@ -1,6 +1,7 @@
 //E1122876, Pavle Mitrovic
 
 #include <iostream>
+#include <algorithm>
 #include <stdlib.h>
 #include <fstream>
 #include <string>
