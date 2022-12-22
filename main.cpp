@@ -130,15 +130,14 @@ void izpisMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 void izpisIzdelkov(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
-	cout << "====================================== \n"
-		 << "Proizvajalec, Izdelek, Kolicina, RFID: \n"
-		 << "====================================== \n";
+	cout << "================================ \n"
+		 << "Proizvajalec, Izdelek, Kolicina: \n"
+		 << "================================ \n";
 	for (const auto& it : evidenca) {
 		if (it.first.kolicina > 0) {
 			cout << it.first.ime_proizvajalca << " "
 				<< it.first.ime_izdelka << " "
-				<< it.first.kolicina << " "
-				<< it.first.rfid << endl;
+				<< it.first.kolicina << endl;
 		}
 	}
 
@@ -337,6 +336,9 @@ void seznamVpisNula(string ime_izdelka, string ime_proizvajalca, dataSet& izdelk
 
 void seznamIzpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	cout << "===============================\n"
+		<< "Proizvajalec, Izdelek, Kolicina \n"
+		<< "===============================\n";
 
 	for (const auto& it : seznam) {
 		if (it.first.kolicina) {
