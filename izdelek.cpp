@@ -6,8 +6,7 @@
 bool Izdelek::operator==(const Izdelek& other) const
 {
 	return ((ime_proizvajalca == other.ime_proizvajalca)
-		&& (ime_izdelka == other.ime_izdelka))
-		&& (rfid == other.rfid);
+		&& (ime_izdelka == other.ime_izdelka));
 }
 
 std::size_t IzdelekHash::operator()(const Izdelek& k) const {
