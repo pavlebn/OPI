@@ -1,7 +1,6 @@
 //E1122876, Pavle Mitrovic
 
 #include <iostream>
-#include <algorithm>
 #include <stdlib.h>
 #include <fstream>
 #include <string>
@@ -336,9 +335,6 @@ void seznamVpisNula(string ime_izdelka, string ime_proizvajalca, dataSet& izdelk
 
 void seznamIzpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
-	cout << "===============================\n"
-		<< "Proizvajalec, Izdelek, Kolicina \n"
-		<< "===============================\n";
 
 	for (const auto& it : seznam) {
 		if (it.first.kolicina) {
