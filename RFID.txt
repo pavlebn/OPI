@@ -1,7 +1,3 @@
-produkt, ime,1000
-produkt, ime,1000
-produkt, ime,1000
-produkt, ime,1000
-ad,ad,1
-as,as,2
-af,af,3
+Glozane, Mleko, 5
+Stark, Smoki, 2
+Stark, Smoki, 4
