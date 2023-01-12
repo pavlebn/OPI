@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <unordered_set>
 #include <unordered_map>
 #include "izdelek.h"
@@ -16,6 +17,7 @@ using dataMap = unordered_map<Izdelek, unsigned int, IzdelekHash>;
 int vhod;
 int argc;
 char** argv;
+bool test_mode = false;
 
 void glavniMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam);
 
@@ -34,7 +36,9 @@ void seznamBrisanje(dataSet& izdelki, dataMap& evidenca, dataMap& seznam);
 void tempMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam, Temp& temp);
 void helpMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam);
 
-//string obrezan(string);
+bool isAlphabetic(const string& s);
+void preveriAlpha(string& s);
+void refresh(dataSet& izdelki, dataMap& evidenca, dataMap& seznam);
 void inputData(string, dataSet& izdelki);
 void inputDataSeznam(string, dataSet& izdelki);
 void storeData(dataSet& izdelki, dataMap& data);
@@ -42,32 +46,37 @@ void storeDataSeznam(dataSet& izdelki, dataMap& data);
 
 
 int main(int argc, char** argv) {
+
+	for (int i = 0; i < argc; ++i) {
+		if (std::string(argv[i]) == "-t") {
+			test_mode = true;
+			break;
+		}
+	}
+
 	dataSet izdelkiRFID;
 	dataMap evidenca;
 	dataMap seznam;
-	::argc = argc;
-	::argv = argv;
+
 	glavniMenu(izdelkiRFID, evidenca, seznam);
+	return 0;
 }
 
 
 /* GLAVNI MENI */
 
 void glavniMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
-	inputData("RFID.txt", izdelki);
-	storeData(izdelki, evidenca);
-	inputDataSeznam("nakupovalniseznam.txt", izdelki);
-	storeDataSeznam(izdelki, seznam);
+	refresh(izdelki, evidenca, seznam);
 	Temp temp;
 	temp.readTemp("temp.txt");
 
 	system("CLS");
-	if (argc > 1) {
-		if (!strcmp(argv[1], "-t")) {
-			cout << "TESTNA VERZIJA\n";
-		}
+
+	if (test_mode) {
+		cout << "Zaslon 1\n";
 	}
-	cout << "Hladilnik, verzija 1.0 \n"
+
+	cout << "Hladilnik, verzija 2.0 \n"
 		"-------------------------------------------------- \n"
 		"GLAVNI MENI \n"
 		"============ \n"
@@ -83,20 +92,24 @@ void glavniMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 		 << "Predal 2: " << temp.getTemp(2) << endl
 		 << "Predal 3: " << temp.getTemp(3) << endl
 		 << "===============================" << endl;
-	cin >> vhod;
+	while ((std::cout << "Izberi ukaz: ")
+		&& !(std::cin >> vhod)) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Vhod mora biti cifra!\n";
+		system("pause");
+	}
 
 	switch (vhod) {
-	case 0: system("pause"); break;
+	case 0: return;
 	case 1: izpisMenu(izdelki, evidenca, seznam); break;
 	case 2: seznamMenu(izdelki, evidenca, seznam); break;
 	case 3: tempMenu(izdelki, evidenca, seznam, temp); break;
 	case 4: helpMenu(izdelki, evidenca, seznam); break;
 	default: {
-		std::cout << "Error! \n";
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cout << "Napacen vhod\n";
 		system("pause");
-		glavniMenu(izdelki, evidenca, seznam);
+		glavniMenu(izdelki, evidenca, seznam); 
 	}
 	}
 }
@@ -106,6 +119,9 @@ void glavniMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 void izpisMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 2\n";
+	}
 	cout << "============= \n"
 		"MENI 1: Izpis informacij o izdelkih v hladilniku na zaslonu\n"
 		"=============\n"
@@ -115,7 +131,14 @@ void izpisMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 		"4)Izpis kolicine primerkov izdelka\n"
 		"0)Nazaj\n";
 
-	cin >> vhod;
+	while ((std::cout << "Izberi ukaz: ")
+		&& !(std::cin >> vhod)) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Vhod mora biti cifra!\n";
+		system("pause");
+		izpisMenu(izdelki, evidenca, seznam);
+	}
 
 	switch (vhod) {
 	case 0: glavniMenu(izdelki, evidenca, seznam); break;
@@ -123,12 +146,20 @@ void izpisMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	case 2: izpisIzdelkovNula(izdelki, evidenca, seznam); break;
 	case 3: izpisIzdelkovEna(izdelki, evidenca, seznam); break;
 	case 4: izpisKolicine(izdelki, evidenca, seznam); break;
-	default: cout << "Error! \n";
+	default: {
+		cout << "Napacen vhod\n";
+		system("pause");
+		izpisMenu(izdelki, evidenca, seznam);
+	}
 	}
 }
 
 void izpisIzdelkov(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	refresh(izdelki, evidenca, seznam);
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 3\n";
+	}
 	cout << "================================ \n"
 		 << "Proizvajalec, Izdelek, Kolicina: \n"
 		 << "================================ \n";
@@ -146,7 +177,11 @@ void izpisIzdelkov(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 }
 
 void izpisIzdelkovNula(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	refresh(izdelki, evidenca, seznam);
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 4\n";
+	}
 	cout << "=====================\n"
 		<< "Proizvajalec, Izdelek \n"
 		<< "======================\n";
@@ -181,7 +216,11 @@ void izpisIzdelkovNula(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 }
 
 void izpisIzdelkovEna(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	refresh(izdelki, evidenca, seznam);
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 5\n";
+	}
 	cout << "=====================\n"
 		<< "Proizvajalec, Izdelek \n"
 		<< "======================\n";
@@ -217,8 +256,13 @@ void izpisIzdelkovEna(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 }
 
 void izpisKolicine(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	refresh(izdelki, evidenca, seznam);
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 6\n";
+	}
 	Izdelek prebran_izdelek;
+	int flag = 0;
 
 	cout << "Vpisite ime izdelka: ";
 	cin >> prebran_izdelek.ime_izdelka;
@@ -227,9 +271,11 @@ void izpisKolicine(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	for (const auto& it : evidenca) {
 		if (it.first.ime_izdelka == prebran_izdelek.ime_izdelka &&
 			it.first.ime_proizvajalca == prebran_izdelek.ime_proizvajalca) {
-			cout << "Kolicina zeljenog izdelka je " << it.first.kolicina;
+				cout << "Kolicina zelenega izdelka je " << it.first.kolicina;
+				flag = 1;
 		}
 	}
+	if (!flag) cout << "Zelenega izdelka ni.";
 	cout << "\n\n";
 	system("PAUSE");
 	glavniMenu(izdelki, evidenca, seznam);
@@ -241,6 +287,9 @@ void izpisKolicine(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 void seznamMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 7\n";
+	}
 	cout << "=============\n"
 		"MENI 2: upravljanje z nakupovalnim seznamom\n"
 		"=============\n"
@@ -249,7 +298,14 @@ void seznamMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 		"3) brisanje vseh izdelkov sa seznama\n"
 		"0) Nazaj\n";
 
-	cin >> vhod;
+	while ((std::cout << "Izberi ukaz: ")
+		&& !(std::cin >> vhod)) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Vhod mora biti cifra!\n";
+		system("pause");
+		seznamMenu(izdelki, evidenca, seznam);
+	}
 
 	switch (vhod) {
 	case 0: glavniMenu(izdelki, evidenca, seznam); break;
@@ -257,9 +313,7 @@ void seznamMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	case 2: seznamIzpis(izdelki, evidenca, seznam); break;
 	case 3: seznamBrisanje(izdelki, evidenca, seznam); break;
 	default: {
-		std::cout << "Error! \n";
-		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		cout << "Napacen vhod\n";
 		system("pause");
 		seznamMenu(izdelki, evidenca, seznam);
 	}
@@ -268,19 +322,24 @@ void seznamMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 void seznamVpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 8\n";
+	}
 	Izdelek prebran_izdelek;
 
 	cout << "Vnesi ime izdelka: ";
-	cin >> prebran_izdelek.ime_izdelka;
+	getline(cin >> ws, prebran_izdelek.ime_izdelka);
+	preveriAlpha(prebran_izdelek.ime_izdelka);	
+
 	cout << "Vnesi ime proizvajalca: ";
 	cin >> prebran_izdelek.ime_proizvajalca;
-	while ((std::cout << "Vnesi kolicino: ")									//FIX INPUT RESTRICTION
-		&& !(std::cin >> prebran_izdelek.kolicina)) {
-		system("CLS");
+	preveriAlpha(prebran_izdelek.ime_proizvajalca);
+	
+	while ((std::cout << "Vnesi kolicino: ")
+		&& (!(std::cin >> prebran_izdelek.kolicina) || prebran_izdelek.kolicina < 1)) {
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-		cout << "Vhod mora biti cifra!\n"
-			<< "Vnesi kolicino:";
+		cout << "Vhod mora biti cifra vecja od 0!\n";
 	}
 
 	std::ofstream outfile;
@@ -295,10 +354,8 @@ void seznamVpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 			outfile << it.first.ime_izdelka << ","
 				<< it.first.ime_proizvajalca << ","
 				<< it.first.kolicina << endl;
-
 	}
 	outfile.close();
-
 
 	cout << "\n\n";
 	system("PAUSE");
@@ -334,7 +391,11 @@ void seznamVpisNula(string ime_izdelka, string ime_proizvajalca, dataSet& izdelk
 }
 
 void seznamIzpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	refresh(izdelki, evidenca, seznam);
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 9\n";
+	}
 
 	for (const auto& it : seznam) {
 		if (it.first.kolicina) {
@@ -352,6 +413,9 @@ void seznamIzpis(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 void seznamBrisanje(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 10\n";
+	}
 	seznam.erase(seznam.begin(), seznam.end());
 	remove("nakupovalniseznam.txt");
 	std::ofstream("nakupovalniseznam.txt");
@@ -362,6 +426,29 @@ void seznamBrisanje(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 
 
 /* DATA MANAGEMENT */
+
+bool isAlphabetic(const string& s) {
+	for (auto c : s) {
+		if (!isalpha(c) && !isspace(c)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void preveriAlpha(string& s) {
+	while (!isAlphabetic(s)) {
+		std::cout << "Vhod mora biti tekst! Poskusi se enkrat: \n";
+		std::cin >> s;
+	}
+}
+
+void refresh(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
+	inputData("RFID.txt", izdelki);
+	storeData(izdelki, evidenca);
+	inputDataSeznam("nakupovalniseznam.txt", izdelki);
+	storeDataSeznam(izdelki, seznam);
+}
 
 void inputData(string dataName, dataSet& izdelki) {
 	ifstream dataInput(dataName);
@@ -467,40 +554,53 @@ void tempMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam, Temp& obj) {
 		int predal = 0,
 			temp = 0;
 		system("CLS");
+		if (test_mode) {
+			cout << "Zaslon 11\n";
+		}
 		cout << "=============\n"
 			"MENI 3: nastavitev temperature\n"
 			"=============\n";
-		while ((std::cout << "Izberi predal (4 - Glava):")									//FIX INPUT RESTRICTION
-			&& (!(std::cin >> predal) || predal < 1 || predal > 4)) {
+		while ((std::cout << "1 - Prvi predal\n"
+						<< "2 - Drugi predal\n"
+						<< "3 - Tretji predal\n"
+						<< "4 - Glava\n"
+						<< "0 - Nazaj na glavni meni\n"
+						<< "Izberi predal: ")
+			&& (!(std::cin >> predal) || predal < 0 || predal > 4)) {
 			system("CLS");
-			cout << "Napacen vhod\n";
+			cout << "Napacen vhod!\n";
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
-		if (predal == 4) {
-			while ((std::cout << "Vnesi temperaturo (-25 - 0): ")							//FIX INPUT RESTRICTION
+		if (predal == 0) {
+			glavniMenu(izdelki, evidenca, seznam);
+		}
+		else if (predal == 4) {
+			while ((std::cout << "Vnesi temperaturo (-25 - 0): ")
 				&& (!(std::cin >> temp) || temp < -25 || temp > 0)) {
 				system("CLS");
-				cout << "Napacen vhod\n";
+				cout << "Napacen vhod!\n";
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			};
 		}
 		else {
-			while ((std::cout << "Vnesi temperaturo (1 - 20): ")							//FIX INPUT RESTRICTION
+			while ((std::cout << "Vnesi temperaturo (1 - 20): ")
 				&& (!(std::cin >> temp) || temp < 1 || temp > 20)) {
 				system("CLS");
-				cout << "Napacen vhod\n";
+				cout << "Napacen vhod!\n";
 				std::cin.clear();
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
 		}
 	obj.setTemp(predal, temp);
-	glavniMenu(izdelki, evidenca, seznam);
 }
 
 void helpMenu(dataSet& izdelki, dataMap& evidenca, dataMap& seznam) {
 	system("CLS");
+	if (test_mode) {
+		cout << "Zaslon 12\n";
+	}
 	cout << "V glavnem meniju lahko izberemo zelene funkcije\n"
 		<< "in preberemo temperature predal v hladilniku\n"
 		<< "\nCe zelimo prebrati seznam izdelkov v hladilniku, izberemo meni 1\n"
